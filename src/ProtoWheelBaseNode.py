@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+
+
 from rclpy import Node
 from std_msgs.msg import String
 

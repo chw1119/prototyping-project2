@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+
+
 import rclpy
 from rclpy.node import Node
 from nav_msgs.msg import OccupancyGrid
@@ -25,6 +28,8 @@ class PotentialFieldVisualizer(Node):
         self.visualize_potential_field()
 
     def visualize_potential_field(self):
+        self.get_logger().info("sibal")
+
         if self.costmap_data is None:
             return
 
@@ -38,6 +43,7 @@ class PotentialFieldVisualizer(Node):
         plt.show()
 
 def main(args=None):
+    print("123123")
     rclpy.init(args=args)
     node = PotentialFieldVisualizer()
     rclpy.spin(node)

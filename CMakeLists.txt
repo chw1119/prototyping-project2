@@ -7,6 +7,9 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(rclpy REQUIRED)  # Python ROS 2 라이브러리 추가
+find_package(nav_msgs REQUIRED)  # OccupancyGrid 메시지 사용을 위한 의존성 추가
+
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
@@ -22,5 +25,17 @@ if(BUILD_TESTING)
   set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
+
+
+# Python 실행 파일 설치
+install(
+  PROGRAMS
+    src/PotentialFieldVisualizer.py  # Python 스크립트 경로
+  DESTINATION lib/${PROJECT_NAME}      # 실행 파일 설치 경로
+)
+
+install(DIRECTORY launch src
+DESTINATION share/${PROJECT_NAME}
+)
 
 ament_package()
