@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PC방 주문 알림</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 10px;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .order-list {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+        .order {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .order:last-child {
+            border-bottom: none;
+        }
+        .order button {
+            padding: 8px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .order button:hover {
+            background-color: #0056b3;
+        }
+        .alert {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background-color: #ff4d4d;
+            color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>PC방 주문 관리</h1>
+    </header>
+    <div class="container">
+        <h2>주문 리스트</h2>
+        <div class="order-list" id="order-list">
+            <p>현재 접수된 주문이 없습니다.</p>
+        </div>
+    </div>
+
+    <!-- 알림 박스 -->
+    <div class="alert" id="alert-box">새로운 주문이 들어왔습니다!</div>
+
+    <script>
+        const orderList = document.getElementById('order-list');
+        const alertBox = document.getElementById('alert-box');
+
+        // 주문 데이터 (예시)
+        const incomingOrders = [
+            { id: 1, items: ['라면', '콜라'], total: 4500 },
+            { id: 2, items: ['치킨'], total: 10000 }
+        ];
+
+        // 주문 추가 함수
+        function addOrder(order) {
+            // 알림 표시
+            showAlert();
+
+            // 주문 리스트 업데이트
+            const orderDiv = document.createElement('div');
+            orderDiv.classList.add('order');
+            orderDiv.innerHTML = `
+                <p><strong>주문 번호:</strong> ${order.id}</p>
+                <p><strong>주문 항목:</strong> ${order.items.join(', ')}</p>
+                <p><strong>총액:</strong> ${order.total.toLocaleString()}원</p>
+                <button onclick="completeOrder(${order.id})">주문 완료</button>
+            `;
+            orderList.appendChild(orderDiv);
+        }
+
+        // 알림 표시 함수
+        function showAlert() {
+            alertBox.style.display = 'block';
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, 3000); // 3초 후 자동 닫힘
+        }
+
+        // 주문 완료 함수
+        function completeOrder(orderId) {
+            const orderDivs = document.querySelectorAll('.order');
+            orderDivs.forEach((div) => {
+                if (div.innerHTML.includes(`주문 번호: ${orderId}`)) {
+                    div.remove();
+                }
+            });
+
+            // 주문이 모두 처리되었는지 확인
+            if (orderList.children.length === 0) {
+                orderList.innerHTML = '<p>현재 접수된 주문이 없습니다.</p>';
+            }
+        }
+
+        // 테스트용으로 주문 자동 추가 (실제 상황에서는 서버에서 주문 데이터를 받을 때 호출)
+        setTimeout(() => addOrder(incomingOrders[0]), 2000); // 2초 후 첫 주문
+        setTimeout(() => addOrder(incomingOrders[1]), 5000); // 5초 후 두 번째 주문
+    </script>
+</body>
+</html>

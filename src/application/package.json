@@ -1,0 +1,24 @@
+{
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^4.21.2"
+  },
+  "name": "prototyping-project2",
+  "description": "fuck",
+  "version": "1.0.0",
+  "main": "./src/application/main.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "node main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chw1119/prototyping-project2.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/chw1119/prototyping-project2/issues"
+  },
+  "homepage": "https://github.com/chw1119/prototyping-project2#readme"
+}
