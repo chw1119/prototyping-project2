@@ -5,6 +5,8 @@ from rclpy.node import Node
 from gazebo_msgs.srv import SpawnEntity, SetEntityState
 from gazebo_msgs.msg import EntityState
 import time
+import random
+from BoxObject import BoxObject
 
 
 class SpawnAndMoveBoxNode(Node):
@@ -12,6 +14,8 @@ class SpawnAndMoveBoxNode(Node):
         super().__init__('spawn_and_move_box_node')
 
         # Gazebo의 /spawn_entity 서비스를 사용하기 위한 클라이언트 생성
+        self.box_list = []
+
         self.spawn_client = self.create_client(SpawnEntity, '/spawn_entity')
         self.move_client = self.create_client(SetEntityState, '/set_entity_state')
 
@@ -27,11 +31,21 @@ class SpawnAndMoveBoxNode(Node):
     def spawn_box(self):
         # SpawnEntity 서비스 요청 생성
         request = SpawnEntity.Request()
-        request.name = "long_box"  # 생성할 물체 이름
-        request.xml = self.generate_box_sdf()  # SDF 내용
-        request.initial_pose.position.x = 0.0  # 초기 위치 설정 (x)
-        request.initial_pose.position.y = 0.0  # 초기 위치 설정 (y)
-        request.initial_pose.position.z = 0.5  # 초기 위치 설정 (z)
+        
+
+        box_temp = BoxObject(
+            name=f"human${random.uniform(1000, 9999)}", x_pose = 0.0, y_pose = 0.0, z_pose = 0.0,
+            xml_string = self.generate_box_sdf()
+        )
+
+        self.box_list.append(box_temp)
+
+        request.name = box_temp.name  # 생성할 물체 이름
+        request.xml = box_temp.xml_string  # SDF 내용
+        request.initial_pose.position.x = box_temp.x_pose  # 초기 위치 설정 (x)
+        request.initial_pose.position.y = box_temp.y_pose  # 초기 위치 설정 (y)
+        request.initial_pose.position.z = box_temp.z_pose  # 초기 위치 설정 (z)
+
         request.initial_pose.orientation.w = 1.0  # 방향 설정 (쿼터니언)
 
         # 서비스 호출
@@ -82,7 +96,7 @@ class SpawnAndMoveBoxNode(Node):
             response = future.result()
             if response.success:
                 self.get_logger().info(f"Successfully spawned box: {response.status_message}")
-                time.sleep(2)  # 물체 생성 대기
+                #time.sleep(2)  # 물체 생성 대기
                 self.move_box()
             else:
                 self.get_logger().error(f"Failed to spawn box: {response.status_message}")
@@ -92,26 +106,25 @@ class SpawnAndMoveBoxNode(Node):
     def move_box(self):
         # SetEntityState 서비스 요청 생성
         request = SetEntityState.Request()
-        state = EntityState()
-        state.name = "long_box"  # 이동할 물체의 이름
-        state.pose.position.x = 2.0  # 새로운 위치 x
-        state.pose.position.y = 2.0  # 새로운 위치 y
-        state.pose.position.z = 0.5  # 높이 유지
-        state.pose.orientation.w = 1.0  # 방향 유지
+        
+        for box in self.box_list:
+          state = EntityState()
+          box.x_vector = 0.01
+          box.animate()
 
-        # 선속도와 각속도 설정
-        state.twist.linear.x = 100.0  # x 방향으로 이동 속도
-        state.twist.linear.y = 0.0  # y 방향 이동 없음
-        state.twist.linear.z = 0.0  # z 방향 이동 없음
-        state.twist.angular.x = 0.0  # 각속도 x
-        state.twist.angular.y = 0.0  # 각속도 y
-        state.twist.angular.z = 0.2  # z 방향 회전
+          state.name = box.name  # 이동할 물체의 이름
+          state.pose.position.x = box.x_pose  # 새로운 위치 x
+          state.pose.position.y = box.y_pose  # 새로운 위치 y
+          state.pose.position.z = box.z_pose  # 높이 유지
+          state.pose.orientation.w = 1.0  # 방향 유지
 
-        request.state = state
+          # 선속도와 각속도 설정
 
-        # 서비스 호출
-        future = self.move_client.call_async(request)
-        future.add_done_callback(self.callback_move_response)
+          request.state = state
+
+          # 서비스 호출
+          future = self.move_client.call_async(request)
+          future.add_done_callback(self.callback_move_response)
 
     def callback_move_response(self, future):
         try:
@@ -120,6 +133,8 @@ class SpawnAndMoveBoxNode(Node):
                 self.get_logger().info(f"Successfully moved box: {response}")
             else:
                 self.get_logger().error(f"Failed to move box: {response}")
+
+            self.spawn_box()
         except Exception as e:
             self.get_logger().error(f"Service call failed: {str(e)}")
 

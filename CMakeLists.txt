@@ -32,6 +32,7 @@ install(
   PROGRAMS
     src/PotentialFieldVisualizer.py  # Python 스크립트 경로
     src/SpawnObjectNode.py
+    src/BoxObject.py
   DESTINATION lib/${PROJECT_NAME}      # 실행 파일 설치 경로
 )
 

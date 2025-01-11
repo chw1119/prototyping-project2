@@ -7,9 +7,11 @@ class BoxObject:
         name = "OBJECT__", 
         x_pose = 0, y_pose = 0, z_pose = 0, 
         yaw = 0, pitch = 0, roll = 0,
-        x_vector = 0, y_vector = 0, z_vector = 0):
+        x_vector = 0, y_vector = 0, z_vector = 0,
+        xml_string = ""):
         
         self.name = name
+        self.xml_string = xml_string
         
         self.x_pose = x_pose
         self.y_pose = y_pose
