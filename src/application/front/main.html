@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PC방 주문 오더</title>
+    <!-- Tailwind CSS CDN 링크 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <header class="bg-gray-800 text-white p-4 text-center">
+        <h1 class="text-2xl">PC방 주문 오더</h1>
+    </header>
+
+    <div class="max-w-3xl mx-auto my-8 p-6 bg-white shadow-lg rounded-lg">
+        <h2 class="text-xl font-semibold text-gray-700 mb-6">메뉴</h2>
+        
+        <div class="space-y-4">
+            <!-- 메뉴 항목 -->
+            <div class="flex items-center justify-between p-4 border-b border-gray-300">
+                <div class="flex items-center space-x-4">
+                    <img src="https://sitem.ssgcdn.com/99/73/77/item/1000528777399_i3_750.jpg" alt="라면" class="w-16 h-16 object-cover rounded-md">
+                    <span class="text-lg text-gray-700">라면</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-lg text-gray-500">3,000원</span>
+                    <button class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600" onclick="addToCart('라면', 3000)">추가</button>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between p-4 border-b border-gray-300">
+                <div class="flex items-center space-x-4">
+                    <img src="https://i.namu.wiki/i/O_C6hvISxb9ndvytfAMu_zJll2D1JXK0oe4oLfPc8GVb4K7XG4f2SlH72dgi99pMw5TpdgtoXu6wGua_BsgPdA.webp" alt="콜라" class="w-16 h-16 object-cover rounded-md">
+                    <span class="text-lg text-gray-700">콜라</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-lg text-gray-500">1,500원</span>
+                    <button class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600" onclick="addToCart('콜라', 1500)">추가</button>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between p-4 border-b border-gray-300">
+                <div class="flex items-center space-x-4">
+                    <img src="https://cdn.imweb.me/upload/S20220826948cbdc34dca3/73645e3c0ef90.jpg" alt="치킨" class="w-16 h-16 object-cover rounded-md">
+                    <span class="text-lg text-gray-700">치킨</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-lg text-gray-500">10,000원</span>
+                    <button class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600" onclick="addToCart('치킨', 10000)">추가</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-8">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4">장바구니</h2>
+            <div class="bg-gray-50 p-4 rounded-lg border border-gray-300">
+                <ul id="cart-list" class="space-y-2">
+                    <!-- 장바구니 항목이 여기에 추가됩니다 -->
+                </ul>
+                <button class="w-full bg-green-500 text-white py-2 rounded-md hover:bg-green-600 mt-4" onclick="placeOrder()">주문하기</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const cart = [];
+
+        function addToCart(item, price) {
+            cart.push({ item, price });
+            renderCart();
+        }
+
+        function renderCart() {
+            const cartList = document.getElementById('cart-list');
+            cartList.innerHTML = '';
+            cart.forEach(({ item, price }, index) => {
+                const li = document.createElement('li');
+                li.className = 'text-gray-700';
+                li.textContent = `${item} - ${price.toLocaleString()}원`;
+                cartList.appendChild(li);
+            });
+        }
+
+        function placeOrder() {
+            if (cart.length === 0) {
+                alert('장바구니가 비어 있습니다.');
+                return;
+            }
+            alert('주문이 접수되었습니다!');
+            cart.length = 0;
+            renderCart();
+        }
+    </script>
+</body>
+</html>
