@@ -29,7 +29,11 @@ class HumanPath:
                 temp_rel_direction = Direction(x_vec=data["points"][i][0] - data["points"][i - 1][0], y_vec=data["points"][i][1] - data["points"][i - 1][1])
                 abs_dir = AbsoluteDirection(rel_direction=temp_rel_direction, current_xyz=(data["points"][i][0], data["points"][i][1], 0))
                 self.add_path(abs_dir)
-            
+
+"""
+TEST CODE
+Written by chw1119
+"""         
 """
 def test():
     hp = HumanPath()
