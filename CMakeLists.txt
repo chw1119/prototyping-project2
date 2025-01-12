@@ -41,3 +41,6 @@ DESTINATION share/${PROJECT_NAME}
 )
 
 ament_package()
+
+
+#ros2 launch nav2_bringup navigation_launch.py params_file:=/path/to/nav2_params.yaml map:=/path/to/my_map.yaml
