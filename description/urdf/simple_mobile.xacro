@@ -1,0 +1,340 @@
+<?xml version="1.0"?>
+
+<robot name="simple_mobile" xmlns:xacro="http://www.ros.org/wiki/xacro">
+	<xacro:property name="wheel_D"value="0.20"/>
+	<xacro:property name="wheel_W"value="0.32"/>
+<!-- Link -->
+	<link name="fixed_base" />
+
+	<link name="base_link">
+   		<visual>
+			<origin xyz="0 0 0" rpy="0 0 ${pi/2}" />
+			<geometry>
+				<mesh filename="package://simple_mobile/description/meshes/base_link.STL" />
+			</geometry>
+			<material name="Aluminum">
+				<color rgba="1.0 0.75 0.0 1" />
+			</material>
+   		</visual>
+
+		<collision>
+			<origin xyz="0 0 0" rpy="0 0 ${pi/2}" />
+			<geometry>
+				<mesh filename="package://simple_mobile/description/meshes/base_link.STL" />
+			</geometry>
+		</collision>
+
+		<inertial>
+			<origin xyz="0 0.055998 0.019157" rpy="0 0 ${pi/2}	" />
+			<mass value="15.0"/>
+	 		<inertia
+	 			ixx="0.017303" ixy="0" ixz="0"
+				iyy="0.011944" iyz="0.00013524"
+				izz="0.018716" />
+		</inertial>
+ 	</link>
+
+ 	<link name="wheel_l">
+   		<visual>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+     			<geometry>
+					<mesh filename="package://simple_mobile/description/meshes/wheel_l.STL" />
+				</geometry>
+   			<material name="Rubber">
+				<color rgba="0.3 0.3 0.3 1"/>
+			</material>
+		</visual>
+		<collision>
+			<origin xyz="0 0 0" rpy="0 0 0" />
+			<geometry>
+				<mesh filename="package://simple_mobile/description/meshes/wheel_l.STL" />
+			</geometry>
+		</collision>
+		<inertial>
+			<origin xyz="0.012 0 0" rpy="0 0 0" />
+			<mass value="1.0"/>
+	 		<inertia
+	 			ixx="9.1964E-05" ixy="0" ixz="0"
+				iyy="0.000472088" iyz="0"
+				izz="0.000472088" />
+		</inertial>
+ 	</link>
+
+ 	<link name="wheel_r">
+   		<visual>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+     			<geometry>
+					<mesh filename="package://simple_mobile/description/meshes/wheel_r.STL" />
+				</geometry>
+   			<material name="Rubber">
+				<color rgba="0.3 0.3 0.3 1"/>
+			</material>
+		</visual>
+		<collision>
+			<origin xyz="0 0 0" rpy="0 0 0" />
+			<geometry>
+				<mesh filename="package://simple_mobile/description/meshes/wheel_r.STL" />
+			</geometry>
+		</collision>
+		<inertial>
+			<origin xyz="-0.012 0 0" rpy="0 0 0" />
+			<mass value="1.0"/>
+	 		<inertia
+	 			ixx="9.1964E-05" ixy="0" ixz="0"
+				iyy="0.000472088" iyz="0"
+				izz="0.000472088" />
+		</inertial>
+ 	</link>
+
+	<link name="camera_link">
+   		<visual>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+     			<geometry>
+					<box size="0.05 0.03 0.02"/>
+				</geometry>
+   			<material name="CameraPlastic">
+				<color rgba="0.2 0.2 0.5 1"/>
+			</material>
+		</visual>
+		<collision>
+			<origin xyz="0 0 0" rpy="0 0 0" />
+			<geometry>
+				<box size="0.05 0.03 0.02"/>
+			</geometry>
+		</collision>
+ 	</link>
+
+	<link name="lidar_box">
+    <visual>
+        <origin xyz="0 0 0.1" rpy="0 0 0"/> <!-- base_link 위에 0.1m 높이 -->
+        <geometry>
+            <box size="0.1 0.1 0.1"/> <!-- 박스 크기: 0.1m x 0.1m x 0.1m -->
+        </geometry>
+        <material name="Aluminum"> <!-- base_link와 동일한 재질 -->
+            <color rgba="1.0 0.75 0.0 1"/>
+        </material>
+    </visual>
+    <collision>
+        <origin xyz="0 0 0.1" rpy="0 0 0"/>
+        <geometry>
+            <box size="0.1 0.1 0.1"/>
+        </geometry>
+    </collision>
+    <inertial>
+        <mass value="0.5"/> <!-- 박스 무게 -->
+        <origin xyz="0 0 0.1" rpy="0 0 0"/>
+        <inertia
+            ixx="0.001" ixy="0" ixz="0"
+            iyy="0.001" iyz="0"
+            izz="0.001"/>
+    </inertial>
+</link>
+
+<joint name="base_to_lidar_box" type="fixed">
+    <parent link="base_link"/>
+    <child link="lidar_box"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+</joint>
+
+<joint name="lidar_box_to_lidar" type="fixed">
+    <parent link="lidar_box"/>
+    <child link="lidar_link"/>
+    <origin xyz="0 0 0.1" rpy="0 0 0"/> <!-- 박스 위에 LiDAR 위치 -->
+</joint>
+
+
+	<link name="lidar_link">
+   		<visual>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+     			<geometry>
+					<cylinder radius="0.05" length="0.06"/>
+				</geometry>
+   			<material name="LiDAR_Plastic">
+				<color rgba="0.9 0.1 0.1 1"/>
+			</material>
+		</visual>
+		<collision>
+			<origin xyz="0 0 0" rpy="0 0 0" />
+			<geometry>
+				<cylinder radius="0.05" length="0.06"/>
+			</geometry>
+		</collision>
+ 	</link>
+
+
+<!-- Joint --> 
+ 	<joint name="fixed_base_to_base_link" type="fixed">
+ 		<parent link="fixed_base"/>
+ 		<child link="base_link" />
+		<origin xyz="0 0 0.03" rpy="0 0 0"/>
+ 	</joint>
+	
+ 	<joint name="base_to_wheel_l" type="continuous">
+   		<parent link="base_link"/>
+   		<child link="wheel_l"/>
+   		<origin xyz="0.07 0.16 0.038" rpy="0 0 ${pi/2}"/> 
+		<axis xyz="1 0 0"/>
+		<dynamics
+			friction="0.8"
+			damping="0.7" />
+ 	</joint>
+
+ 	<joint name="base_to_wheel_r" type="continuous">
+   		<parent link="base_link"/>
+   		<child link="wheel_r"/>
+   		<origin xyz="0.07 -0.16 0.038" rpy="0 0 ${pi/2}"/>
+		<!-- <axis xyz="1 0 0"/> -->
+		<dynamics
+			friction="0.8"
+			damping="0.7" />
+ 	</joint>
+
+	<joint name="camera_joint" type="fixed">
+   		<parent link="base_link"/>
+   		<child link="camera_link"/>
+   		<origin xyz="0.17 0.0 0.14" rpy="0 0 0"/>
+ 	</joint>
+
+	<joint name="lidar_joint" type="fixed">
+   		<parent link="base_link"/>
+   		<child link="lidar_link"/>
+   		<origin xyz="0.0 0.0 0.15" rpy="0 0 0"/>
+ 	</joint>
+
+<!-- for gazebo -->
+	<gazebo reference="base_link">
+		<mu1>0.0</mu1>
+		<mu2>0.0</mu2>
+		<material>Gazebo/Orange</material>
+	</gazebo>
+
+	<gazebo reference="wheel_l">
+		<mu1>1.0</mu1>
+		<mu2>1.0</mu2>
+		<kp>500000.0</kp>
+		<kd>10.0</kd>
+		<material>Gazebo/Black</material>
+	</gazebo>
+
+	<gazebo reference="wheel_r">
+		<mu1>1.0</mu1>
+		<mu2>1.0</mu2>
+		<kp>500000.0</kp>
+		<kd>10.0</kd>
+		<material>Gazebo/Black</material>
+	</gazebo>
+
+	<gazebo>
+	<plugin name='mobile_diff_drive' filename='libgazebo_ros_diff_drive.so'>
+		<ros>
+            <!-- <remapping>cmd_vel:=cmd_vel</remapping>
+            <remapping>odom:=odom</remapping> -->
+        </ros>
+
+		<update_rate>20</update_rate>
+		<!-- wheels -->
+		<left_joint>base_to_wheel_l</left_joint>
+        <right_joint>base_to_wheel_r</right_joint>
+		<!-- kinematics -->
+		<wheel_separation>0.32</wheel_separation>
+		<wheel_diameter>0.20</wheel_diameter>
+		<!-- limits -->
+		<max_wheel_torque>100</max_wheel_torque>
+        <max_wheel_acceleration>0.5</max_wheel_acceleration>
+
+		<command_topic>cmd_vel</command_topic>
+
+		<publish_odom>true</publish_odom>
+        <publish_odom_tf>true</publish_odom_tf>
+        <publish_wheel_tf>true</publish_wheel_tf>
+
+		<odometry_topic>odom</odometry_topic>
+		<odometry_frame>odom</odometry_frame>
+        <robot_base_frame>fixed_base</robot_base_frame>
+    </plugin>
+	</gazebo>
+
+	<!-- camera -->
+	<gazebo reference="camera_link">
+		<material>Gazebo/Gray</material>
+		<sensor type="camera" name="camera1">
+		<update_rate>30.0</update_rate>
+		<camera name="head">
+			<horizontal_fov>1.3962634</horizontal_fov>
+			<image>
+			<width>800</width>
+			<height>800</height>
+			<format>R8G8B8</format>
+			</image>
+			<clip>
+			<near>0.02</near>
+			<far>300</far>
+			</clip>
+			<noise>
+			<type>gaussian</type>
+			<!-- Noise is sampled independently per pixel on each frame.
+				That pixel's noise value is added to each of its color
+				channels, which at that point lie in the range [0,1]. -->
+			<mean>0.0</mean>
+			<stddev>0.007</stddev>
+			</noise>
+		</camera>
+		<plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+			<alwaysOn>true</alwaysOn>
+			<updateRate>0.0</updateRate>
+			<cameraName>camera1</cameraName>
+			<imageTopicName>image_raw</imageTopicName>
+			<cameraInfoTopicName>camera_info</cameraInfoTopicName>
+			<frameName>camera_link</frameName>
+			<hackBaseline>0.07</hackBaseline>
+			<distortionK1>0.0</distortionK1>
+			<distortionK2>0.0</distortionK2>
+			<distortionK3>0.0</distortionK3>
+			<distortionT1>0.0</distortionT1>
+			<distortionT2>0.0</distortionT2>
+		</plugin>
+		</sensor>
+	</gazebo>
+
+	  <!-- LiDAR-->
+	<gazebo reference="lidar_link">
+		<material>Gazebo/Red</material>
+		<sensor type="ray" name="head_lidar_sensor">
+		<pose>0 0 0 0 0 0</pose>
+		<visualize>false</visualize>
+		<update_rate>40</update_rate>
+		<ray>
+			<scan>
+			<horizontal>
+				<samples>720</samples>
+				<resolution>1</resolution>
+				<min_angle>-1.570796</min_angle>
+				<max_angle>1.570796</max_angle>
+			</horizontal>
+			</scan>
+			<range>
+			<min>0.1</min>
+			<max>15.0</max>
+			<resolution>0.01</resolution>
+			</range>
+			<noise>
+			<type>gaussian</type>
+			<!-- Noise parameters based on published spec for Hokuyo laser
+				achieving "+-30mm" accuracy at range < 10m.  A mean of 0.0m and
+				stddev of 0.01m will put 99.7% of samples within 0.03m of the true
+				reading. -->
+			<mean>0.0</mean>
+			<stddev>0.01</stddev>
+			</noise>
+		</ray>
+		<plugin name="gazebo_ros_head_lidar_controller" filename="libgazebo_ros_ray_sensor.so">
+			<ros>
+				<argument>~/out:=scan</argument>
+			</ros>
+			<output_type>sensor_msgs/LaserScan</output_type>
+			<frameName>lidar_link</frameName>
+		</plugin>
+		</sensor>
+	</gazebo>
+
+</robot>

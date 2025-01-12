@@ -33,10 +33,11 @@ install(
     src/PotentialFieldVisualizer.py  # Python 스크립트 경로
     src/SpawnObjectNode.py
     src/BoxObject.py
+    src/MakeEnvNode.py
   DESTINATION lib/${PROJECT_NAME}      # 실행 파일 설치 경로
 )
 
-install(DIRECTORY launch src
+install(DIRECTORY launch src map description include
 DESTINATION share/${PROJECT_NAME}
 )
 
@@ -44,3 +45,4 @@ ament_package()
 
 
 #ros2 launch nav2_bringup navigation_launch.py params_file:=/path/to/nav2_params.yaml map:=/path/to/my_map.yaml
+#ros2 launch gazebo_ros gazebo.launch.py world:=/home/don/ros2_ws/src/prototyping-project2/description/test_world.world

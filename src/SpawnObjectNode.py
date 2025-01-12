@@ -134,7 +134,7 @@ class SpawnAndMoveBoxNode(Node):
             else:
                 self.get_logger().error(f"Failed to move box: {response}")
 
-            self.spawn_box()
+            #self.spawn_box()
         except Exception as e:
             self.get_logger().error(f"Service call failed: {str(e)}")
 
