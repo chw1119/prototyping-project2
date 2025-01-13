@@ -82,12 +82,6 @@
         const orderList = document.getElementById('order-list');
         const alertBox = document.getElementById('alert-box');
 
-        // 주문 데이터 (예시)
-        const incomingOrders = [
-            { id: 1, items: ['라면', '콜라'], total: 4500 },
-            { id: 2, items: ['치킨'], total: 10000 }
-        ];
-
         // 주문 추가 함수
         function addOrder(order) {
             // 알림 표시
@@ -129,8 +123,8 @@
         }
 
         // 테스트용으로 주문 자동 추가 (실제 상황에서는 서버에서 주문 데이터를 받을 때 호출)
-        setTimeout(() => addOrder(incomingOrders[0]), 2000); // 2초 후 첫 주문
-        setTimeout(() => addOrder(incomingOrders[1]), 5000); // 5초 후 두 번째 주문
+        setTimeout(() => addOrder({ id: 1, items: ['라면', '콜라'], total: 4500 }), 2000); // 2초 후 첫 주문
+        setTimeout(() => addOrder({ id: 2, items: ['치킨'], total: 10000 }), 5000); // 5초 후 두 번째 주문
     </script>
 </body>
 </html>

@@ -37,7 +37,7 @@ install(
   DESTINATION lib/${PROJECT_NAME}      # 실행 파일 설치 경로
 )
 
-install(DIRECTORY launch src map description include
+install(DIRECTORY launch src map description description/meshes description/object include
 DESTINATION share/${PROJECT_NAME}
 )
 

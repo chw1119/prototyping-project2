@@ -5,6 +5,17 @@ from rclpy.node import Node
 from std_msgs.msg import String
 from gazebo_msgs.srv import SpawnEntity, SetEntityState
 from BoxObject import BoxObject
+from scipy.spatial.transform import Rotation as R
+from time import sleep
+
+# 오일러 각도 (roll, pitch, yaw) [rad]
+euler_angles = [0.1, 0.2, 0.3]  # radians
+
+# 오일러 각을 쿼터니언으로 변환
+r = R.from_euler('xyz', euler_angles)  # 'xyz'는 회전 순서
+quaternion = r.as_quat()  # [x, y, z, w]
+print("Quaternion:", quaternion)
+
 import random
 
 class MakeEnvNode(Node):
@@ -14,17 +25,23 @@ class MakeEnvNode(Node):
 
         # Load STL file and setup parameters
         self.package_name = 'prototyping-project2'  # Replace with your package name
-        self.stl_file_name = 'map.stl'       # Replace with your STL file name
+        self.map_stl_file_name = 'Prototype2_InternetCafe_Map.stl'       # Replace with your STL file name
+        self.chair_sdf_file_name = "chair.sdf"
 
         # Get package share directory
         self.package_share_path = self.get_package_share_directory()
-        self.map_stl_file_path = os.path.join(self.package_share_path, 'map', self.stl_file_name)
+        self.map_stl_file_path = os.path.join(self.package_share_path, 'map', self.map_stl_file_name)
 
         # Generate URDF content with STL mesh
-        self.map_content = self.generate_sdf(self.stl_file_path)
+        self.map_content = self.generate_sdf(self.map_stl_file_path)
+        self.chiar_sdf_file_path = os.path.join(self.package_share_path, 'description',  'object' ,self.chair_sdf_file_name)
+        
+        with open(self.chiar_sdf_file_path, 'r') as file:
+            chair_sdf = file.read()
+            self.chair_sdf_contents = chair_sdf
 
-        self.chiar_stl_file_path = os.path.join(self.package_share_path, 'map', self.stl_file_name)
-        self.chair_content = self.generate_sdf(self.stl_file_path)
+            pass
+
 
         self.spawn_client = self.create_client(SpawnEntity, '/spawn_entity')
 
@@ -44,12 +61,13 @@ class MakeEnvNode(Node):
         <sdf version="1.6">
             <model name="MapObject">
                 <static>true</static>
+                <self_collide>true</self_collide>
                 <link name="base_link">
                     <visual name="visual">
                         <geometry>
                             <mesh>
                                 <uri>{stl_path}</uri>
-                                <scale>0.005 0.005 0.005</scale>
+                                <scale>0.001 0.001 0.001</scale>
                             </mesh>
                         </geometry>
                     </visual>
@@ -57,7 +75,7 @@ class MakeEnvNode(Node):
                         <geometry>
                             <mesh>
                                 <uri>{stl_path}</uri>
-                                <scale>0.005 0.005 0.005</scale>
+                                <scale>0.001 0.001 0.001</scale>
                             </mesh>
                         </geometry>
                     </collision>
@@ -70,35 +88,179 @@ class MakeEnvNode(Node):
     def publish_urdf(self):
         # Example of logging the URDF or extending for specific ROS usage
         self.get_logger().info("URDF generated:")
-        self.get_logger().info(self.urdf_content)
+        self.get_logger().info(self.map_content)
 
         # Additional functionality to publish or load URDF can be added here
         # For example, publish it as a ROS topic or save to a file
         
-        self.spawn_object()
+        self.spawn_map()
+        self.spawn_chairs()
 
-    def spawn_object(self):
+    def spawn_map(self):
         # SpawnEntity 서비스 요청 생성
         request = SpawnEntity.Request()
         
 
         box_temp = BoxObject(
-            name=f"map${random.uniform(1000, 9999)}", x_pose = 0.0, y_pose = 0.0, z_pose = 0.0,
-            xml_string = self.urdf_content
+            name=f"map${random.uniform(1000, 9999)}", x_pose = 8.0, y_pose = -5.0, z_pose = 0.0,
+            xml_string = self.map_content
         )
 
 
         request.name = box_temp.name  # 생성할 물체 이름
         request.xml = box_temp.xml_string  # SDF 내용
+
         request.initial_pose.position.x = box_temp.x_pose  # 초기 위치 설정 (x)
         request.initial_pose.position.y = box_temp.y_pose  # 초기 위치 설정 (y)
         request.initial_pose.position.z = box_temp.z_pose  # 초기 위치 설정 (z)
-
+        
         request.initial_pose.orientation.w = 1.0  # 방향 설정 (쿼터니언)
 
         # 서비스 호출
         future = self.spawn_client.call_async(request)
         future.add_done_callback(self.callback_spawn_response)
+
+    def spawn_chairs(self):
+        # SpawnEntity 서비스 요청 생성
+        for i in range(5):
+            request = SpawnEntity.Request()
+        
+
+            box_temp = BoxObject(
+                name=f"chair${random.uniform(1000, 9999)}", x_pose = 7.1  + (random.random() / 5 - (1 / 5)), y_pose = -3.0 + (0.9 * i) + (random.random() / 5 - (1 / 5)), z_pose = 1.1,
+                xml_string = self.chair_sdf_contents
+            )
+
+
+            request.name = box_temp.name  # 생성할 물체 이름
+            request.xml = box_temp.xml_string  # SDF 내용
+            request.initial_pose.position.x = box_temp.x_pose  # 초기 위치 설정 (x)
+            request.initial_pose.position.y = box_temp.y_pose  # 초기 위치 설정 (y)
+            request.initial_pose.position.z = box_temp.z_pose  # 초기 위치 설정 (z)
+
+
+            euler_angles = [0.0, 0.0, 1.6]  # radians
+
+            # 오일러 각을 쿼터니언으로 변환
+            r = R.from_euler('xyz', euler_angles)  # 'xyz'는 회전 순서
+            quaternion = r.as_quat()  # [x, y, z, w]
+
+
+            request.initial_pose.orientation.x = quaternion[0]  # 방향 설정 (쿼터니언)
+            request.initial_pose.orientation.y = quaternion[1]  # 방향 설정 (쿼터니언)
+            request.initial_pose.orientation.z = quaternion[2]  # 방향 설정 (쿼터니언)
+            request.initial_pose.orientation.w = quaternion[3]  # 방향 설정 (쿼터니언)
+
+
+            # 서비스 호출
+            future = self.spawn_client.call_async(request)
+            future.add_done_callback(self.callback_spawn_response)
+
+
+        for i in range(4):
+            request = SpawnEntity.Request()
+        
+
+            box_temp = BoxObject(
+                name=f"chair${random.uniform(1000, 9999)}", x_pose = 7.1 + (random.random() / 5 - (1 / 5)), y_pose = 1.95 + (0.9 * i) + (random.random() / 5 - (1 / 5)), z_pose = 1.1,
+                xml_string = self.chair_sdf_contents
+            )
+
+
+            request.name = box_temp.name  # 생성할 물체 이름
+            request.xml = box_temp.xml_string  # SDF 내용
+            request.initial_pose.position.x = box_temp.x_pose  # 초기 위치 설정 (x)
+            request.initial_pose.position.y = box_temp.y_pose  # 초기 위치 설정 (y)
+            request.initial_pose.position.z = box_temp.z_pose  # 초기 위치 설정 (z)
+
+
+            euler_angles = [0.0, 0.0, 1.6]  # radians
+
+            # 오일러 각을 쿼터니언으로 변환
+            r = R.from_euler('xyz', euler_angles)  # 'xyz'는 회전 순서
+            quaternion = r.as_quat()  # [x, y, z, w]
+
+
+            request.initial_pose.orientation.x = quaternion[0]  # 방향 설정 (쿼터니언)
+            request.initial_pose.orientation.y = quaternion[1]  # 방향 설정 (쿼터니언)
+            request.initial_pose.orientation.z = quaternion[2]  # 방향 설정 (쿼터니언)
+            request.initial_pose.orientation.w = quaternion[3]  # 방향 설정 (쿼터니언)
+
+
+            # 서비스 호출
+            future = self.spawn_client.call_async(request)
+            future.add_done_callback(self.callback_spawn_response)
+        
+        sleep(5)
+        
+        for i in range(5):
+            request = SpawnEntity.Request()
+        
+
+            box_temp = BoxObject(
+                name=f"chair${random.uniform(1000, 9999)}", x_pose = 5.63 - (0.9 * i) + (random.random() / 5 - (1 / 5)), y_pose = 5.94 + (random.random() / 5 - (1 / 5)), z_pose = 1.1,
+                xml_string = self.chair_sdf_contents
+            )
+
+
+            request.name = box_temp.name  # 생성할 물체 이름
+            request.xml = box_temp.xml_string  # SDF 내용
+            request.initial_pose.position.x = box_temp.x_pose  # 초기 위치 설정 (x)
+            request.initial_pose.position.y = box_temp.y_pose  # 초기 위치 설정 (y)
+            request.initial_pose.position.z = box_temp.z_pose  # 초기 위치 설정 (z)
+
+
+            euler_angles = [0.0, 0.0, 3.14]  # radians
+
+            # 오일러 각을 쿼터니언으로 변환
+            r = R.from_euler('xyz', euler_angles)  # 'xyz'는 회전 순서
+            quaternion = r.as_quat()  # [x, y, z, w]
+
+
+            request.initial_pose.orientation.x = quaternion[0]  # 방향 설정 (쿼터니언)
+            request.initial_pose.orientation.y = quaternion[1]  # 방향 설정 (쿼터니언)
+            request.initial_pose.orientation.z = quaternion[2]  # 방향 설정 (쿼터니언)
+            request.initial_pose.orientation.w = quaternion[3]  # 방향 설정 (쿼터니언)
+
+
+            # 서비스 호출
+            future = self.spawn_client.call_async(request)
+            future.add_done_callback(self.callback_spawn_response)
+
+        for i in range(6):
+            request = SpawnEntity.Request()
+        
+            1.35
+            box_temp = BoxObject(
+                name=f"chair${random.uniform(1000, 9999)}", x_pose = 0.65 - (0.9 * i) + (random.random() / 5 - (1 / 5)), y_pose = 5.94 + (random.random() / 5 - (1 / 5)), z_pose = 1.1,
+                xml_string = self.chair_sdf_contents
+            )
+
+
+            request.name = box_temp.name  # 생성할 물체 이름
+            request.xml = box_temp.xml_string  # SDF 내용
+            request.initial_pose.position.x = box_temp.x_pose  # 초기 위치 설정 (x)
+            request.initial_pose.position.y = box_temp.y_pose  # 초기 위치 설정 (y)
+            request.initial_pose.position.z = box_temp.z_pose  # 초기 위치 설정 (z)
+
+
+            euler_angles = [0.0, 0.0, 3.14]  # radians
+
+            # 오일러 각을 쿼터니언으로 변환
+            r = R.from_euler('xyz', euler_angles)  # 'xyz'는 회전 순서
+            quaternion = r.as_quat()  # [x, y, z, w]
+
+
+            request.initial_pose.orientation.x = quaternion[0]  # 방향 설정 (쿼터니언)
+            request.initial_pose.orientation.y = quaternion[1]  # 방향 설정 (쿼터니언)
+            request.initial_pose.orientation.z = quaternion[2]  # 방향 설정 (쿼터니언)
+            request.initial_pose.orientation.w = quaternion[3]  # 방향 설정 (쿼터니언)
+
+
+            # 서비스 호출
+            future = self.spawn_client.call_async(request)
+            future.add_done_callback(self.callback_spawn_response)
+
 
     def callback_spawn_response(self, future):
         try:

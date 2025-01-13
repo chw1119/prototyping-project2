@@ -85,11 +85,25 @@
         function placeOrder() {
             if (cart.length === 0) {
                 alert('장바구니가 비어 있습니다.');
-                return;
+                return; 
             }
-            alert('주문이 접수되었습니다!');
-            cart.length = 0;
-            renderCart();
+
+            // AJAX를 사용하여 서버로 주문 데이터 전송
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/order');
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        alert('주문이 접수되었습니다!');
+                        cart.length = 0;
+                        renderCart();
+                    } else {
+                        alert('주문 처리 중 오류가 발생했습니다.');
+                    }
+                }
+            };
+            xhr.send(JSON.stringify({ data : cart  }));
         }
     </script>
 </body>

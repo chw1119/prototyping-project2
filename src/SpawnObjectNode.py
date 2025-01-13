@@ -26,7 +26,7 @@ class SpawnAndMoveBoxNode(Node):
             self.get_logger().info('Waiting for /gazebo/set_entity_state service...')
 
         self.get_logger().info('Services are available. Spawning box...')
-        self.spawn_box()
+        #self.spawn_box()
 
     def spawn_box(self):
         # SpawnEntity 서비스 요청 생성
