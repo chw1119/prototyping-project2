@@ -34,10 +34,11 @@ install(
     src/SpawnObjectNode.py
     src/BoxObject.py
     src/MakeEnvNode.py
+    config/simple_mobile_lds_2d.lua
   DESTINATION lib/${PROJECT_NAME}      # 실행 파일 설치 경로
 )
 
-install(DIRECTORY launch src map description description/meshes description/object include
+install(DIRECTORY launch src map description description/meshes description/object description/urdf include config rviz
 DESTINATION share/${PROJECT_NAME}
 )
 

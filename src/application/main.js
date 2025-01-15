@@ -5,8 +5,11 @@ const bodyParser = require('body-parser'); // POST 데이터 파싱을 위한 �
 const app = express();
 const { exec } = require('child_process');
 
-const foodList = [];
+let foodList = [];
 
+const seat_pos = [
+    
+];
 
 // 'public' 폴더를 static 파일 디렉토리로 설정
 app.use(express.static(path.join(__dirname, 'public')));
@@ -20,25 +23,58 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // ROS 2 토픽에 메시지를 발행하는 함수
-function publishToROS(topic, message) {
-    exec(`ros2 topic pub ${topic} std_msgs/String '{data: "${message}"}'`);
+function publishToROS(x, y) {
+    exec(`ros2 action send_goal /navigate_to_pose nav2_msgs/action/NavigateToPose "{pose: {header: {frame_id: 'map'}, pose: {position: {x: ${x}, y: ${y}}, orientation: {w: 1.0}}}}"`);
 }
+//ros2 action send_goal /navigate_to_pose nav2_msgs/action/NavigateToPose "{pose: {header: {frame_id: 'map'}, pose: {position: {x: 2.0, y: 2.0}, orientation: {w: 1.0}}}}"
 
 // 클라이언트로부터 주문 데이터를 받는 API 엔드포인트
 app.post('/order', (req, res) => {
-    const { items, total } = req.body;  // 클라이언트로부터 받은 주문 데이터
-    const orderId = Date.now(); // 임시로 주문 ID 생성
+    const value = {
+        "치킨" : 10000,
+        "라면" : 3000,
+        "콜라" : 1500,
+        "*" : 0
+    }
 
-    console.log(`주문 받음: 주문 ID ${orderId}, 항목: ${items.join(', ')}, 총액: ${total}원`);
-    
+    const data = req.body.data;  // 클라이언트로부터 받은 주문 데이터
+    const seat_id = req.body.seat_id;
+    const orderId = Date.now(); // 임시로 주문 ID 생성
+    const items = [];
+
+    let total = 0;
+
+    for(let i = 0; i < data.length; i++) {
+        const table = {};
+        const temp_d = data[i];
+
+        console.log(data)
+        
+        if(!table[temp_d.item])
+            table[temp_d.item] = 1;
+        else
+            table[temp_d.item]++;
+
+        
+        for(let j = 0; j < Object.keys(table).length; j++) {
+            items.push(Object.keys(table)[j]);
+            total += value[Object.keys(table)[j]];
+        }
+
+        
+
+    }
+
     foodList.push({
-        orderId : orderId,
-        content : items.join(', '),
-        cost : total
+        userID  : orderId,
+        items   : items,
+        total   : total,
+        seat_id : seat_id
     })
-    
+
+    console.log(foodList);
     // ROS 2 토픽에 주문 데이터를 발행
-    publishToROS('/order_topic', `주문 ID ${orderId}, 항목: ${items.join(', ')}, 총액: ${total}원`);
+    //publishToROS('/order_topic', `주문 ID ${orderId}, 항목: ${items.join(', ')}, 총액: ${total}원`);
 
     res.send('주문이 정상적으로 처리되었습니다.');
 });
@@ -48,6 +84,12 @@ app.post('/order-get', (req, res)=>{
     res.json(foodList);
 
     foodList = [];
+})
+
+app.post('/complete', (req, res)=>{
+    const data = req.body.data;
+
+
 })
 
 // '/client' 경로로 요청이 들어오면 HTML 파일을 응답으로 반환

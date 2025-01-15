@@ -64,6 +64,8 @@
     </div>
 
     <script>
+
+        const seat_id = prompt("좌석 번호를 입력하세요.")
         const cart = [];
 
         function addToCart(item, price) {
@@ -103,7 +105,9 @@
                     }
                 }
             };
-            xhr.send(JSON.stringify({ data : cart  }));
+            
+            console.log(cart)
+            xhr.send(JSON.stringify({ data : cart, seat_id : seat_id }));
         }
     </script>
 </body>

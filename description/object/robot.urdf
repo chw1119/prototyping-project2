@@ -1,0 +1,200 @@
+<?xml version="1.0"?>
+
+<robot name="simple_mobile">
+<!-- Link -->
+	<link name="fixed_base" />
+
+	<link name="base_link">
+   		<visual>
+			<origin xyz="0 0 0" rpy="0 0 1.5707963268" />
+			<geometry>
+				<mesh filename="package://simple_mobile/description/meshes/base_link.STL" />
+			</geometry>
+			<material name="Aluminum">
+				<color rgba="1.0 0.75 0.0 1" />
+			</material>
+   		</visual>
+
+		<collision>
+			<origin xyz="0 0 0" rpy="0 0 1.5707963268" />
+			<geometry>
+				<mesh filename="package://simple_mobile/description/meshes/base_link.STL" />
+			</geometry>
+		</collision>
+
+		<inertial>
+			<origin xyz="0 0.055998 0.019157" rpy="0 0 1.5707963268" />
+			<mass value="15.0"/>
+	 		<inertia
+	 			ixx="0.017303" ixy="0" ixz="0"
+				iyy="0.011944" iyz="0.00013524"
+				izz="0.018716" />
+		</inertial>
+ 	</link>
+
+ 	<link name="wheel_l">
+   		<visual>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+     			<geometry>
+					<mesh filename="package://simple_mobile/description/meshes/wheel_l.STL" />
+				</geometry>
+   			<material name="Rubber">
+				<color rgba="0.3 0.3 0.3 1"/>
+			</material>
+		</visual>
+		<collision>
+			<origin xyz="0 0 0" rpy="0 0 0" />
+			<geometry>
+				<mesh filename="package://simple_mobile/description/meshes/wheel_l.STL" />
+			</geometry>
+		</collision>
+		<inertial>
+			<origin xyz="0.012 0 0" rpy="0 0 0" />
+			<mass value="1.0"/>
+	 		<inertia
+	 			ixx="9.1964E-05" ixy="0" ixz="0"
+				iyy="0.000472088" iyz="0"
+				izz="0.000472088" />
+		</inertial>
+ 	</link>
+
+ 	<link name="wheel_r">
+   		<visual>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+     			<geometry>
+					<mesh filename="package://simple_mobile/description/meshes/wheel_r.STL" />
+				</geometry>
+   			<material name="Rubber">
+				<color rgba="0.3 0.3 0.3 1"/>
+			</material>
+		</visual>
+		<collision>
+			<origin xyz="0 0 0" rpy="0 0 0" />
+			<geometry>
+				<mesh filename="package://simple_mobile/description/meshes/wheel_r.STL" />
+			</geometry>
+		</collision>
+		<inertial>
+			<origin xyz="-0.012 0 0" rpy="0 0 0" />
+			<mass value="1.0"/>
+	 		<inertia
+	 			ixx="9.1964E-05" ixy="0" ixz="0"
+				iyy="0.000472088" iyz="0"
+				izz="0.000472088" />
+		</inertial>
+ 	</link>
+
+	<link name="camera_link">
+   		<visual>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+     			<geometry>
+					<box size="0.05 0.03 0.02"/>
+				</geometry>
+   			<material name="CameraPlastic">
+				<color rgba="0.2 0.2 0.5 1"/>
+			</material>
+		</visual>
+		<collision>
+			<origin xyz="0 0 0" rpy="0 0 0" />
+			<geometry>
+				<box size="0.05 0.03 0.02"/>
+			</geometry>
+		</collision>
+ 	</link>
+
+	<link name="lidar_box">
+    <visual>
+        <origin xyz="0 0 0.1" rpy="0 0 0"/> <!-- base_link 위에 0.1m 높이 -->
+        <geometry>
+            <box size="0.1 0.1 0.1"/> <!-- 박스 크기: 0.1m x 0.1m x 0.1m -->
+        </geometry>
+        <material name="Aluminum"> <!-- base_link와 동일한 재질 -->
+            <color rgba="1.0 0.75 0.0 1"/>
+        </material>
+    </visual>
+    <collision>
+        <origin xyz="0 0 0.1" rpy="0 0 0"/>
+        <geometry>
+            <box size="0.1 0.1 0.1"/>
+        </geometry>
+    </collision>
+    <inertial>
+        <mass value="0.5"/> <!-- 박스 무게 -->
+        <origin xyz="0 0 0.1" rpy="0 0 0"/>
+        <inertia
+            ixx="0.001" ixy="0" ixz="0"
+            iyy="0.001" iyz="0"
+            izz="0.001"/>
+    </inertial>
+</link>
+
+<joint name="base_to_lidar_box" type="fixed">
+    <parent link="base_link"/>
+    <child link="lidar_box"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+</joint>
+
+<joint name="lidar_box_to_lidar" type="fixed">
+    <parent link="lidar_box"/>
+    <child link="lidar_link"/>
+    <origin xyz="0 0 0.1" rpy="0 0 0"/> <!-- 박스 위에 LiDAR 위치 -->
+</joint>
+
+
+	<link name="lidar_link">
+   		<visual>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+     			<geometry>
+					<cylinder radius="0.05" length="0.06"/>
+				</geometry>
+   			<material name="LiDAR_Plastic">
+				<color rgba="0.9 0.1 0.1 1"/>
+			</material>
+		</visual>
+		<collision>
+			<origin xyz="0 0 0" rpy="0 0 0" />
+			<geometry>
+				<cylinder radius="0.05" length="0.06"/>
+			</geometry>
+		</collision>
+ 	</link>
+
+
+<!-- Joint --> 
+ 	<joint name="fixed_base_to_base_link" type="fixed">
+ 		<parent link="fixed_base"/>
+ 		<child link="base_link" />
+		<origin xyz="0 0 0.03" rpy="0 0 0"/>
+ 	</joint>
+	
+ 	<joint name="base_to_wheel_l" type="continuous">
+   		<parent link="base_link"/>
+   		<child link="wheel_l"/>
+   		<origin xyz="0.07 0.16 0.038" rpy="0 0 1.5707963268"/> 
+		<axis xyz="1 0 0"/>
+		<dynamics
+			friction="0.8"
+			damping="0.7" />
+ 	</joint>
+
+ 	<joint name="base_to_wheel_r" type="continuous">
+   		<parent link="base_link"/>
+   		<child link="wheel_r"/>
+   		<origin xyz="0.07 -0.16 0.038" rpy="0 0 1.5707963268"/>
+		<!-- <axis xyz="1 0 0"/> -->
+		<dynamics
+			friction="0.8"
+			damping="0.7" />
+ 	</joint>
+
+	<joint name="camera_joint" type="fixed">
+   		<parent link="base_link"/>
+   		<child link="camera_link"/>
+   		<origin xyz="0.17 0.0 0.14" rpy="0 0 0"/>
+ 	</joint>
+
+	<joint name="lidar_joint" type="fixed">
+   		<parent link="base_link"/>
+   		<child link="lidar_link"/>
+   		<origin xyz="0.0 0.0 0.15" rpy="0 0 0"/>
+ 	</joint>
